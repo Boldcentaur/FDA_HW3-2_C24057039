@@ -1,0 +1,21 @@
+  我使用了Dota2的DataSet來進行這次的作業。此為2016/8/13其中兩小時内Dota2游戲的詳細資料，本次資料分析的目的為通過雙方英雄陣容來預測游戲的勝負，
+是一個Classification的問題。資料的第一欄為勝負，1為Team 1獲勝，-1為Team 2獲勝。第二欄為游戲進行的地區的CLuster ID，第三欄為Game Mode，第四欄
+為Game Type，第五到最後一欄為特定的英雄，0為沒有出場，1為在Team 1出場，-1為在Team 2出場。
+
+  首先，我先做了一些統計處理，得出Team 1的勝率約在52.7%左右。然後我也統計出了所有英雄的登場率以及勝率，最高的英雄登場率在35%左右，而最高的英雄
+勝率約在60%。然後我認爲Cluster ID，Game Mode及Game Type不影響實際勝負，所以直接把第5到最後一欄的這些one-hot encoding直接拿各種Classification
+Model去算，發現Logistic Regression的效果最佳，Test Accuracy有在59.7%左右。這是一個比較低的正確率，但由於游戲的勝負不只要看英雄陣容，還要看操作
+者的專業度，所以這結果還是在可接受範圍内的。
+
+  然後我進行了第一次Improvement，使用NN來進行實作，爲了避免Overfitting，我把模型做的很小，並讓它跑了100次epochs，發現loss不太會降了，最後的Test
+Accuracy為58.25%，比之前的結果還差。
+
+  然後進行了Improvement 2，Dota2的英雄有分5個位置，如果一場比賽中陣容平衡，每個位置都各有1個英雄，那這場比賽的勝率就會大大提高。我把所有的
+英雄位置都輸入到資料中，參考資料來源為https://www.reddit.com/r/learndota2/comments/6qm1xd/list_of_hero_rolespositions/。我增加了一個
+Balance的欄位，用來計算Team 1與Team 2那隊的陣容更平衡若爲正數，代表Team 2陣容更均衡；反之亦然。結果出來的Test Accuracy有到60%，只提升了大概0.3%
+左右的準確率。後來有查到資料說在比較低階的Dota2比賽中（也就是本資料集），玩家之間的水準差距較大，所以陣容平衡度對預測勝負沒有那麽大的作用。
+
+  最後是Improvement 3，使用NN來對加了Balance這個feature的資料進行訓練，這次用了比較複雜的模型，只花了2個Epochs就結束，最後的結果為59.48%。
+  
+  其實我有在kaggle上面（https://www.kaggle.com/c/bits-f312-lab-04/leaderboard）找到幾乎一樣的比賽，發現Leaderboard第一名也只有60.1%的準確率，
+所以我認爲60%左右這大概是這個資料集能預測到的極限了。
